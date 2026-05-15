@@ -12,7 +12,7 @@ export default function Home() {
   const [filters, setFilters] = useState({ category: '', status: '', search: '' });
   const [showFilters, setShowFilters] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchJobs();
@@ -35,50 +35,6 @@ export default function Home() {
     }
   };
 
-  const handleStatusChange = async (jobId, newStatus) => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-    
-    const job = jobs.find(j => j._id === jobId);
-    if (job && job.owner._id !== user._id) {
-      alert('You can only update your own jobs');
-      return;
-    }
-    
-    try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${jobId}`, { status: newStatus });
-      fetchJobs();
-    } catch (error) {
-      console.error('Error updating status:', error);
-      alert(error.response?.data?.message || 'Failed to update status');
-    }
-  };
-
-  const handleDelete = async (jobId) => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-    
-    const job = jobs.find(j => j._id === jobId);
-    if (job && job.owner._id !== user._id) {
-      alert('You can only delete your own jobs');
-      return;
-    }
-    
-    if (confirm('Are you sure you want to delete this job?')) {
-      try {
-        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${jobId}`);
-        fetchJobs();
-      } catch (error) {
-        console.error('Error deleting job:', error);
-        alert(error.response?.data?.message || 'Failed to delete job');
-      }
-    }
-  };
-
   const stats = {
     total: jobs.length,
     open: jobs.filter(j => j.status === 'Open').length,
@@ -86,202 +42,176 @@ export default function Home() {
     closed: jobs.filter(j => j.status === 'Closed').length,
   };
 
-  const getStatusBadge = (status) => {
-    switch(status) {
-      case 'Open': return 'badge-open';
-      case 'In Progress': return 'badge-progress';
-      case 'Closed': return 'badge-closed';
-      default: return '';
-    }
-  };
-
-  const isOwner = (job) => {
-    return user && job.owner && job.owner._id === user._id;
-  };
-
-  if (authLoading) {
-    return (
-      <div className="modern-loader">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="modern-container">
+    <div className="container">
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
       
-      <div className="modern-header fade-in-up">
-        <h1>🎯 Service Board</h1>
-        <p>Connect with skilled tradespeople in your area</p>
+      <div className="header">
+        <h1>Service Board</h1>
+        <p>post requests · find work · manage jobs</p>
       </div>
 
-      {/* Stats */}
-      <div className="stats-grid fade-in-up">
+      <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-number">{stats.total}</div>
-          <div className="stat-label">Total Jobs</div>
+          <div className="stat-label">total</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number" style={{ color: '#10b981' }}>{stats.open}</div>
-          <div className="stat-label">Open</div>
+          <div className="stat-number">{stats.open}</div>
+          <div className="stat-label">open</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number" style={{ color: '#f59e0b' }}>{stats.inProgress}</div>
-          <div className="stat-label">In Progress</div>
+          <div className="stat-number">{stats.inProgress}</div>
+          <div className="stat-label">in progress</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number" style={{ color: '#9ca3af' }}>{stats.closed}</div>
-          <div className="stat-label">Closed</div>
+          <div className="stat-number">{stats.closed}</div>
+          <div className="stat-label">closed</div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-        <button onClick={() => setShowFilters(!showFilters)} className="modern-btn modern-btn-outline">
-          🔍 {showFilters ? 'Hide Filters' : 'Show Filters'}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+        <button onClick={() => setShowFilters(!showFilters)} className="btn btn-outline">
+          {showFilters ? '− filters' : '+ filters'}
         </button>
         
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '1rem' }}>
           {user ? (
             <>
-              <span style={{ color: 'var(--text-secondary)', alignSelf: 'center' }}>👋 Hi, {user.name}</span>
-              <Link href="/new-job" className="modern-btn modern-btn-primary">
-                ✨ Post New Job
+              <span style={{ color: 'var(--text-secondary)', alignSelf: 'center' }}>
+                / {user.name} /
+              </span>
+              <Link href="/new-job" className="btn btn-primary">
+                + new post
               </Link>
               <button onClick={() => {
                 localStorage.removeItem('token');
                 window.location.reload();
-              }} className="modern-btn modern-btn-outline">
-                Logout
+              }} className="btn btn-outline">
+                / logout
               </button>
             </>
           ) : (
-            <button onClick={() => setShowLoginModal(true)} className="modern-btn modern-btn-primary">
-              Login / Register
+            <button onClick={() => setShowLoginModal(true)} className="btn btn-primary">
+              / login
             </button>
           )}
         </div>
       </div>
 
       {showFilters && (
-        <div className="modern-filters fade-in-up">
-          <div className="modern-filter-group">
-            <label>🔎 Search</label>
-            <input type="text" className="modern-input" placeholder="Search jobs..." value={filters.search} onChange={(e) => setFilters({...filters, search: e.target.value})} />
+        <div className="filters">
+          <div className="filter-group">
+            <label>search</label>
+            <input type="text" placeholder="title or description..." value={filters.search} onChange={(e) => setFilters({...filters, search: e.target.value})} />
           </div>
-          <div className="modern-filter-group">
-            <label>📂 Category</label>
-            <select className="modern-select" value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}>
-              <option value="">All Categories</option>
-              <option value="Plumbing">Plumbing</option>
-              <option value="Electrical">Electrical</option>
-              <option value="Painting">Painting</option>
-              <option value="Joinery">Joinery</option>
-              <option value="Other">Other</option>
+          <div className="filter-group">
+            <label>category</label>
+            <select value={filters.category} onChange={(e) => setFilters({...filters, category: e.target.value})}>
+              <option value="">all</option>
+              <option value="Plumbing">plumbing</option>
+              <option value="Electrical">electrical</option>
+              <option value="Painting">painting</option>
+              <option value="Joinery">joinery</option>
+              <option value="Other">other</option>
             </select>
           </div>
-          <div className="modern-filter-group">
-            <label>📊 Status</label>
-            <select className="modern-select" value={filters.status} onChange={(e) => setFilters({...filters, status: e.target.value})}>
-              <option value="">All Statuses</option>
-              <option value="Open">Open</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Closed">Closed</option>
+          <div className="filter-group">
+            <label>status</label>
+            <select value={filters.status} onChange={(e) => setFilters({...filters, status: e.target.value})}>
+              <option value="">all</option>
+              <option value="Open">open</option>
+              <option value="In Progress">in progress</option>
+              <option value="Closed">closed</option>
             </select>
           </div>
         </div>
       )}
 
       {loading ? (
-        <div className="modern-loader"><div className="spinner"></div></div>
+        <div className="loader">loading...</div>
       ) : jobs.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">🔍</div>
-          <h3>No jobs found</h3>
-          <p style={{ marginTop: '10px' }}>Try adjusting your filters or post a new job</p>
+        <div className="empty">
+          <p>no jobs found</p>
         </div>
       ) : (
-        <div className="fade-in-up">
-          {jobs.map(job => {
-            const ownerCheck = isOwner(job);
-            return (
-              <div key={job._id} className="modern-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', flexWrap: 'wrap', gap: '15px' }}>
-                  <div style={{ flex: 1 }}>
-                    <Link href={`/jobs/${job._id}`} style={{ textDecoration: 'none' }}>
-                      <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '10px', color: 'var(--text-primary)' }}>
-                        {job.title}
-                      </h3>
-                    </Link>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                      {job.description.substring(0, 120)}...
-                    </p>
-                    <div style={{ display: 'flex', gap: '15px', fontSize: '13px', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
-                      <span>📍 {job.location}</span>
-                      <span>🔧 {job.category}</span>
-                      <span>📅 {new Date(job.createdAt).toLocaleDateString()}</span>
-                      {job.owner && (
-                        <span style={{ 
-                          background: ownerCheck ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                          padding: ownerCheck ? '2px 8px' : '0',
-                          borderRadius: '12px',
-                          color: ownerCheck ? '#10b981' : 'var(--text-muted)'
-                        }}>
-                          {ownerCheck ? '✓ Your job' : `👤 Posted by: ${job.owner.name}`}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
-                    <span className={`modern-badge ${getStatusBadge(job.status)}`}>
-                      {job.status === 'Open' ? '🟢' : job.status === 'In Progress' ? '🟡' : '⚫'} {job.status}
-                    </span>
-                    
-                    {ownerCheck ? (
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        <select
-                          value={job.status}
-                          onChange={(e) => handleStatusChange(job._id, e.target.value)}
-                          className="modern-select"
-                          style={{ padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}
-                        >
-                          <option value="Open">Open</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Closed">Closed</option>
-                        </select>
-                        
-                        <Link
-                          href={`/edit-job/${job._id}`}
-                          className="modern-btn modern-btn-primary"
-                          style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none' }}
-                        >
-                          ✏️ Edit
-                        </Link>
-                        
-                        <button
-                          onClick={() => handleDelete(job._id)}
-                          className="modern-btn modern-btn-danger"
-                          style={{ padding: '6px 12px', fontSize: '12px' }}
-                        >
-                          🗑️ Delete
-                        </button>
-                      </div>
-                    ) : user && !ownerCheck ? (
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', padding: '4px 8px', background: 'var(--bg-secondary)', borderRadius: '8px' }}>
-                        🔒 Only the job owner can manage this
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', padding: '4px 8px', background: 'var(--bg-secondary)', borderRadius: '8px' }}>
-                        🔒 Login to manage jobs
-                      </div>
-                    )}
+        jobs.map(job => {
+          const isOwner = user && job.owner && job.owner._id === user._id;
+          return (
+            <div key={job._id} className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1 }}>
+                  <Link href={`/jobs/${job._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: '400', marginBottom: '0.5rem' }}>
+                      {job.title}
+                    </h3>
+                  </Link>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.875rem' }}>
+                    {job.description.substring(0, 120)}...
+                  </p>
+                  <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    <span>/{job.location}</span>
+                    <span>/{job.category}</span>
+                    <span>/{new Date(job.createdAt).toLocaleDateString()}</span>
+                    {job.owner && <span>/@{job.owner.name}</span>}
+                    {isOwner && <span style={{ color: 'var(--text-primary)' }}>/your post</span>}
                   </div>
                 </div>
+                
+                <div style={{ textAlign: 'right' }}>
+                  <span className={`badge ${
+                    job.status === 'Open' ? 'badge-open' : job.status === 'In Progress' ? 'badge-progress' : 'badge-closed'
+                  }`}>
+                    {job.status.toLowerCase()}
+                  </span>
+                  
+                  {isOwner && (
+                    <div className="action-group">
+                      <select
+                        value={job.status}
+                        onChange={async (e) => {
+                          try {
+                            await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job._id}`, { status: e.target.value });
+                            fetchJobs();
+                          } catch (error) {
+                            console.error('Error:', error);
+                          }
+                        }}
+                        className="btn btn-outline"
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                      >
+                        <option value="Open">open</option>
+                        <option value="In Progress">in progress</option>
+                        <option value="Closed">closed</option>
+                      </select>
+                      
+                      <Link href={`/edit-job/${job._id}`} className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', textDecoration: 'none' }}>
+                        / edit
+                      </Link>
+                      
+                      <button
+                        onClick={async () => {
+                          if (confirm('delete this job?')) {
+                            try {
+                              await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${job._id}`);
+                              fetchJobs();
+                            } catch (error) {
+                              console.error('Error:', error);
+                            }
+                          }
+                        }}
+                        className="btn btn-outline"
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                      >
+                        / delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })
       )}
     </div>
   );

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import LoginModal from '../../components/LoginModal';
 
@@ -22,11 +21,8 @@ export default function EditJob() {
     contactEmail: '',
     status: 'Open'
   });
-  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-
-  const categories = ['Plumbing', 'Electrical', 'Painting', 'Joinery', 'Other'];
 
   useEffect(() => {
     if (!user) {
@@ -41,9 +37,8 @@ export default function EditJob() {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`);
       const job = response.data;
       
-      // Check if user owns this job
-      if (!user || job.owner._id !== user._id) {
-        alert('You can only edit your own jobs');
+      if (job.owner._id !== user._id) {
+        alert('you can only edit your own posts');
         router.push('/');
         return;
       }
@@ -58,54 +53,24 @@ export default function EditJob() {
         status: job.status
       });
     } catch (error) {
-      console.error('Error fetching job:', error);
-      alert('Failed to load job');
+      console.error('Error:', error);
       router.push('/');
     } finally {
       setLoading(false);
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (!formData.category) newErrors.category = 'Category is required';
-    if (!formData.location.trim()) newErrors.location = 'Location is required';
-    if (!formData.contactName.trim()) newErrors.contactName = 'Contact name is required';
-    if (!formData.contactEmail.trim()) {
-      newErrors.contactEmail = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.contactEmail)) {
-      newErrors.contactEmail = 'Email is invalid';
-    }
-    return newErrors;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
     setSubmitting(true);
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/jobs/${id}`, formData);
       router.push(`/jobs/${id}`);
     } catch (error) {
-      console.error('Error updating job:', error);
-      alert(error.response?.data?.message || 'Failed to update job');
+      console.error('Error:', error);
+      alert('failed to update job');
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -114,141 +79,76 @@ export default function EditJob() {
   }
 
   if (loading) {
-    return (
-      <div className="modern-loader">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <div className="loader">loading...</div>;
   }
 
   return (
-    <div className="modern-container">
-      {/* Back Button */}
-      <div style={{ marginBottom: '20px' }}>
-        <Link 
-          href={`/jobs/${id}`} 
-          style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '8px', 
-            color: 'var(--accent-primary)', 
-            textDecoration: 'none',
-            padding: '8px 16px',
-            borderRadius: '10px',
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateX(-5px)';
-            e.currentTarget.style.background = 'var(--bg-card-hover)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateX(0)';
-            e.currentTarget.style.background = 'var(--bg-card)';
-          }}
-        >
-          <ArrowLeftIcon style={{ width: '20px' }} />
-          Back to Job Details
+    <div className="container">
+      <div style={{ marginBottom: '2rem' }}>
+        <Link href={`/jobs/${id}`} style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+          ← / back
         </Link>
       </div>
-
-      <form onSubmit={handleSubmit} className="modern-form">
-        <h2 className="modern-form-title">✏️ Edit Job Posting</h2>
+      
+      <div className="form-container">
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '300', marginBottom: '2rem' }}>/ edit post</h1>
         
-        <div className="modern-form-group">
-          <label>Job Title *</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="e.g., Need a plumber for leaking kitchen tap"
-          />
-          {errors.title && <div className="error-text">{errors.title}</div>}
-        </div>
-
-        <div className="modern-form-group">
-          <label>Description *</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows="4"
-            placeholder="Describe the job in detail..."
-          />
-          {errors.description && <div className="error-text">{errors.description}</div>}
-        </div>
-
-        <div className="form-row">
-          <div className="modern-form-group">
-            <label>Category *</label>
-            <select name="category" value={formData.category} onChange={handleChange}>
-              <option value="">Select a category</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>title</label>
+            <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} required />
+          </div>
+          
+          <div className="form-group">
+            <label>description</label>
+            <textarea rows="4" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} required />
+          </div>
+          
+          <div className="form-group">
+            <label>category</label>
+            <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} required>
+              <option value="Plumbing">plumbing</option>
+              <option value="Electrical">electrical</option>
+              <option value="Painting">painting</option>
+              <option value="Joinery">joinery</option>
+              <option value="Other">other</option>
             </select>
-            {errors.category && <div className="error-text">{errors.category}</div>}
           </div>
-
-          <div className="modern-form-group">
-            <label>Location *</label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="e.g., Glasgow"
-            />
-            {errors.location && <div className="error-text">{errors.location}</div>}
+          
+          <div className="form-group">
+            <label>location</label>
+            <input type="text" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} required />
           </div>
-        </div>
-
-        <div className="form-row">
-          <div className="modern-form-group">
-            <label>Contact Name *</label>
-            <input
-              type="text"
-              name="contactName"
-              value={formData.contactName}
-              onChange={handleChange}
-              placeholder="Your full name"
-            />
-            {errors.contactName && <div className="error-text">{errors.contactName}</div>}
+          
+          <div className="form-group">
+            <label>contact name</label>
+            <input type="text" value={formData.contactName} onChange={(e) => setFormData({...formData, contactName: e.target.value})} required />
           </div>
-
-          <div className="modern-form-group">
-            <label>Contact Email *</label>
-            <input
-              type="email"
-              name="contactEmail"
-              value={formData.contactEmail}
-              onChange={handleChange}
-              placeholder="your@email.com"
-            />
-            {errors.contactEmail && <div className="error-text">{errors.contactEmail}</div>}
+          
+          <div className="form-group">
+            <label>contact email</label>
+            <input type="email" value={formData.contactEmail} onChange={(e) => setFormData({...formData, contactEmail: e.target.value})} required />
           </div>
-        </div>
-
-        <div className="modern-form-group">
-          <label>Status</label>
-          <select name="status" value={formData.status} onChange={handleChange}>
-            <option value="Open">Open</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Closed">Closed</option>
-          </select>
-        </div>
-
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <button type="submit" className="modern-btn modern-btn-primary" style={{ flex: 1, justifyContent: 'center' }} disabled={submitting}>
-            {submitting ? 'Updating...' : '💾 Update Job'}
-          </button>
-          <Link href={`/jobs/${id}`} className="modern-btn modern-btn-outline" style={{ flex: 1, justifyContent: 'center', textDecoration: 'none' }}>
-            Cancel
-          </Link>
-        </div>
-      </form>
+          
+          <div className="form-group">
+            <label>status</label>
+            <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})}>
+              <option value="Open">open</option>
+              <option value="In Progress">in progress</option>
+              <option value="Closed">closed</option>
+            </select>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={submitting}>
+              {submitting ? '...' : '/ update'}
+            </button>
+            <Link href={`/jobs/${id}`} className="btn btn-outline" style={{ flex: 1, textAlign: 'center' }}>
+              / cancel
+            </Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

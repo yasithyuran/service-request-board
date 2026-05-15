@@ -70,6 +70,8 @@ Framework: Next.js
 Env: NEXT_PUBLIC_API_URL = your backend URL + /api
 
 #### Features
+I have added some feature that you didn't asked for.But I thought it will be good with those additional features
+
 Browse jobs with category and status filters
 
 Create new job requests

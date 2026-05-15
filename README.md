@@ -1,44 +1,97 @@
-# 🎯 Service Request Board
+# Service Request Board
 
-### Full-Stack Developer Intern Assessment | GlobalTNA
+A full-stack application where homeowners can post service requests and tradespeople can browse, update status, and manage jobs.
 
-A modern, full-featured platform connecting homeowners with skilled tradespeople. Post service requests, browse jobs, and manage listings with full authentication and ownership control.
+## Live Demo
 
----
+- Frontend: https://service-request-board.vercel.app
+- Backend API: https://service-request-board-api.onrender.com
+- GitHub: https://github.com/yasithyuran/service-request-board
 
-## ✨ Live Demo
+## Tech Stack
 
-> **Coming soon after deployment**
+- Frontend: Next.js 14, JavaScript, CSS
+- Backend: Node.js, Express, MongoDB, JWT
 
-- **Frontend**: [Vercel URL - Coming]
-- **Backend API**: [Render URL - Coming]
-- **GitHub**: [github.com/yasithyuran/service-request-board](https://github.com/yasithyuran/service-request-board)
+## Setup Instructions
 
----
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB Atlas account or local MongoDB
 
-## 🚀 Key Features
+### Backend Setup
 
-### Core Functionality
-| Feature | Description |
-|---------|-------------|
-| 📋 **Job Board** | Browse all service requests with intuitive card layout |
-| 🔍 **Smart Filters** | Filter by category, status, and keyword search |
-| ✨ **Create Jobs** | Post new service requests with form validation |
-| 👁️ **Job Details** | View complete information including contact details |
-| 🔄 **Status Updates** | Change job status (Open → In Progress → Closed) |
-| 🗑️ **Delete Jobs** | Remove unwanted listings |
+--cd backend
+--npm install
+--npm run dev
 
-### Bonus Features Implemented
-- ✅ **JWT Authentication** - Secure login/register system
-- ✅ **Ownership System** - Users can only edit/delete their own posts
-- ✅ **Edit Functionality** - Full post editing capabilities
-- ✅ **Dark/Light Mode** - Theme toggle with persistent storage
-- ✅ **Statistics Dashboard** - Real-time job counts visualizer
-- ✅ **Responsive Design** - Works perfectly on all devices
-- ✅ **Database Seeding** - Sample data for testing
+### Frontend Setup
 
----
+-cd frontend
+-npm install
+-npm run dev
 
-## 🛠️ Tech Stack
+### SeedDatabase Setup
+-cd backend
+-npm run seed
 
-### Frontend
+-creates demo acc- demo@example.com/demo123
+
+### Required Environment Variables
+File	             Variable	          Description
+backend/.env	     MONGODB_URI	      MongoDB connection string
+backend/.env	     JWT_SECRET	          Secret key for JWT tokens
+backend/.env	     PORT	              Server port (5000)
+frontend/.env.local	 NEXT_PUBLIC_API_URL  Backend API URL
+
+#### Run Instructions
+-Local Development
+Start backend: cd backend && npm run dev
+
+Start frontend: cd frontend && npm run dev
+
+Open http://localhost:3000
+
+-Production Deployment
+..Backend (Render):
+
+Root Directory: backend
+
+Build: npm install
+
+Start: node server.js
+
+..Frontend (Vercel):
+
+Root Directory: frontend
+
+Framework: Next.js
+
+Env: NEXT_PUBLIC_API_URL = your backend URL + /api
+
+#### Features
+Browse jobs with category and status filters
+
+Create new job requests
+
+View job details
+
+Update job status (Open/In Progress/Closed)
+
+Delete jobs
+
+Keyword search
+
+User authentication (Login/Register)
+
+Only owners can edit/delete their posts
+
+Dark/Light mode toggle
+
+#### Demo Account
+Email: demo@example.com
+
+Password: demo123
+
+#### Author
+Yasith Yuran

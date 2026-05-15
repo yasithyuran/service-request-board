@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 
-const categories = ['Plumbing', 'Electrical', 'Painting', 'Joinery', 'Other'];
-
 export default function JobForm({ onSubmit, initialData = {}, isEditing = false }) {
   const [formData, setFormData] = useState({
     title: initialData.title || '',
@@ -21,25 +19,25 @@ export default function JobForm({ onSubmit, initialData = {}, isEditing = false 
   const validateField = (name, value) => {
     switch (name) {
       case 'title':
-        if (!value.trim()) return 'Title is required';
-        if (value.length > 100) return 'Title cannot exceed 100 characters';
+        if (!value.trim()) return '⟡ title is required';
+        if (value.length > 100) return '◆ title too long';
         return '';
       case 'description':
-        if (!value.trim()) return 'Description is required';
-        if (value.length > 1000) return 'Description cannot exceed 1000 characters';
+        if (!value.trim()) return '◈ description is required';
+        if (value.length > 1000) return '◇ description too long';
         return '';
       case 'category':
-        if (!value) return 'Category is required';
+        if (!value) return '⟡ category is required';
         return '';
       case 'location':
-        if (!value.trim()) return 'Location is required';
+        if (!value.trim()) return '◆ location is required';
         return '';
       case 'contactName':
-        if (!value.trim()) return 'Contact name is required';
+        if (!value.trim()) return '◈ contact name is required';
         return '';
       case 'contactEmail':
-        if (!value.trim()) return 'Email is required';
-        if (!/\S+@\S+\.\S+/.test(value)) return 'Email is invalid';
+        if (!value.trim()) return '⟡ email is required';
+        if (!/\S+@\S+\.\S+/.test(value)) return '◇ invalid email';
         return '';
       default:
         return '';
@@ -66,7 +64,6 @@ export default function JobForm({ onSubmit, initialData = {}, isEditing = false 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validate all fields
     const newErrors = {};
     const newTouched = {};
     Object.keys(formData).forEach(key => {
@@ -84,154 +81,107 @@ export default function JobForm({ onSubmit, initialData = {}, isEditing = false 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Job Title <span className="text-red-500">*</span>
-        </label>
+    <form onSubmit={handleSubmit}>
+      <div className="form-group">
+        <label>⟡ title</label>
         <input
           type="text"
           name="title"
           value={formData.title}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition
-            ${errors.title && touched.title ? 'border-red-500' : 'border-gray-300'}`}
-          placeholder="e.g., Need a plumber for leaking kitchen tap"
+          placeholder="what needs to be done?"
         />
-        {errors.title && touched.title && (
-          <p className="mt-1 text-sm text-red-500">{errors.title}</p>
-        )}
+        {errors.title && touched.title && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '0.25rem' }}>◇ {errors.title}</div>}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Description <span className="text-red-500">*</span>
-        </label>
+      <div className="form-group">
+        <label>◈ description</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
           onBlur={handleBlur}
           rows="4"
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition
-            ${errors.description && touched.description ? 'border-red-500' : 'border-gray-300'}`}
-          placeholder="Describe the job in detail..."
+          placeholder="describe the job in detail..."
         />
-        {errors.description && touched.description && (
-          <p className="mt-1 text-sm text-red-500">{errors.description}</p>
-        )}
-        <p className="mt-1 text-xs text-gray-500">
-          {formData.description.length}/1000 characters
-        </p>
+        {errors.description && touched.description && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '0.25rem' }}>◆ {errors.description}</div>}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Category <span className="text-red-500">*</span>
-          </label>
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition
-              ${errors.category && touched.category ? 'border-red-500' : 'border-gray-300'}`}
-          >
-            <option value="">Select a category</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-          {errors.category && touched.category && (
-            <p className="mt-1 text-sm text-red-500">{errors.category}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Location <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition
-              ${errors.location && touched.location ? 'border-red-500' : 'border-gray-300'}`}
-            placeholder="e.g., Glasgow"
-          />
-          {errors.location && touched.location && (
-            <p className="mt-1 text-sm text-red-500">{errors.location}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label>⟡ category</label>
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        >
+          <option value="">select</option>
+          <option value="Plumbing">◇ plumbing</option>
+          <option value="Electrical">◆ electrical</option>
+          <option value="Painting">⟡ painting</option>
+          <option value="Joinery">◈ joinery</option>
+          <option value="Other">◇ other</option>
+        </select>
+        {errors.category && touched.category && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '0.25rem' }}>◆ {errors.category}</div>}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Contact Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="contactName"
-            value={formData.contactName}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition
-              ${errors.contactName && touched.contactName ? 'border-red-500' : 'border-gray-300'}`}
-            placeholder="Your full name"
-          />
-          {errors.contactName && touched.contactName && (
-            <p className="mt-1 text-sm text-red-500">{errors.contactName}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label>◈ location</label>
+        <input
+          type="text"
+          name="location"
+          value={formData.location}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="city, area"
+        />
+        {errors.location && touched.location && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '0.25rem' }}>⟡ {errors.location}</div>}
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Contact Email <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            name="contactEmail"
-            value={formData.contactEmail}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition
-              ${errors.contactEmail && touched.contactEmail ? 'border-red-500' : 'border-gray-300'}`}
-            placeholder="your@email.com"
-          />
-          {errors.contactEmail && touched.contactEmail && (
-            <p className="mt-1 text-sm text-red-500">{errors.contactEmail}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label>◆ contact name</label>
+        <input
+          type="text"
+          name="contactName"
+          value={formData.contactName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="your name"
+        />
+        {errors.contactName && touched.contactName && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '0.25rem' }}>◇ {errors.contactName}</div>}
+      </div>
+
+      <div className="form-group">
+        <label>⟡ contact email</label>
+        <input
+          type="email"
+          name="contactEmail"
+          value={formData.contactEmail}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="your@email.com"
+        />
+        {errors.contactEmail && touched.contactEmail && <div style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '0.25rem' }}>◈ {errors.contactEmail}</div>}
       </div>
 
       {isEditing && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Status
-          </label>
+        <div className="form-group">
+          <label>◇ status</label>
           <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="Open">Open</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Closed">Closed</option>
+            <option value="Open">⟡ open</option>
+            <option value="In Progress">◆ in progress</option>
+            <option value="Closed">◈ closed</option>
           </select>
         </div>
       )}
 
-      <button
-        type="submit"
-        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition transform hover:scale-[1.02] font-semibold shadow-md"
-      >
-        {isEditing ? 'Update Job' : 'Post Job'}
+      <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+        {isEditing ? '⟡ / update' : '⟡ / publish'}
       </button>
     </form>
   );
